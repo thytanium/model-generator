@@ -37,11 +37,6 @@ class ModelGeneratorServiceProvider extends ServiceProvider
         $this->commands([
             'Thytanium\ModelGenerator\Commands\GenerateModels',
         ]);
-
-        //Set path for files
-        $this->app->ModelGenerator->setPath(
-            $this->app->basePath()
-        );
     }
 
     /**

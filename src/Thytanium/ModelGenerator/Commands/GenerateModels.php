@@ -19,7 +19,7 @@ class GenerateModels extends Command
 	 *
 	 * @var string
 	 */
-	protected $name = 'thytanium:generate-models';
+	protected $name = 'g:models';
 
 	/**
 	 * The console command description.
@@ -46,7 +46,7 @@ class GenerateModels extends Command
 	 */
 	public function fire()
 	{
-		//
+		$this->generator->build();
 	}
 
 	/**
@@ -57,7 +57,7 @@ class GenerateModels extends Command
 	protected function getArguments()
 	{
 		return [
-			['example', InputArgument::REQUIRED, 'An example argument.'],
+			//['example', InputArgument::REQUIRED, 'An example argument.'],
 		];
 	}
 
@@ -69,7 +69,7 @@ class GenerateModels extends Command
 	protected function getOptions()
 	{
 		return [
-			['example', null, InputOption::VALUE_OPTIONAL, 'An example option.', null],
+			//['example', null, InputOption::VALUE_OPTIONAL, 'An example option.', null],
 		];
 	}
 
