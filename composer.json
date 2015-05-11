@@ -1,0 +1,22 @@
+{
+  "name": "model-generator",
+  "description": "Model generator for Laravel 5",
+
+  "require": {
+    "php": ">=5.4.0",
+    "illuminate/support": "5.*"
+  },
+
+  "autoload": {
+    "psr4": {
+      "Thytanium\\ModelGenerator\\": "src/Thytanium/ModelGenerator/"
+    }
+  },
+
+  "authors": [
+    {
+      "name": "Alejandro González",
+      "email": "thytanium@gmail.com"
+    }
+  ]
+}
