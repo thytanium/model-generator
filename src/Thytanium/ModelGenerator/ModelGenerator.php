@@ -54,12 +54,12 @@ class ModelGenerator
         if (count($matches)) {
             $up = $matches[0];
             $matches = [];
-            preg_match("#(schema\\:\\:create\\s?\\(\\'([a-z0-9_]+)\\'\\s*\\,\\s*function\\s*\\((blueprint\\s*)?\\$([a-z_]+)\\s*\\)(\\s|\\n|\\t)*\\{[^\\}]+\\}\\)\\;(\\s|\\n|\\t)*)+#i", $up, $matches);
+            preg_match_all("#(schema\\:\\:create\\s?\\(\\'([a-z0-9_]+)\\'\\s*\\,\\s*function\\s*\\((blueprint\\s*)?\\$([a-z_]+)\\s*\\)(\\s|\\n|\\t)*\\{[^\\}]+\\}\\)\\;(\\s|\\n|\\t)*)+#i", $up, $matches);
 
             if (count($matches)) {
                 for ($i = 1; $i < count($matches); $i+=6) {
-                    $schema = $matches[$i];
-                    $table = $matches[$i+1];
+                    $schema = $matches[$i][0];
+                    $table = $matches[$i+1][0];
 
                     $this->create($table);
                 }
