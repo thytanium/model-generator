@@ -34,31 +34,22 @@ class ModelGenerator
 
     public function build()
     {
-        /*foreach ($this->file->files(base_path('database/migrations')) as $file) {
+        foreach ($this->file->files(base_path('database/migrations')) as $file) {
             $this->handle($this->file->get($file));
-        }*/
-        $this->handle($this->file->get(base_path('database/migrations/2015_03_24_170539_create_store_tables.php')));
+        }
     }
 
     private function handle($input)
     {
         $matches = [];
-        preg_match("#(public\\s)?function\\s+up\\s?\\(\\s*\\)[\\n\\t\\s]*\\{[\\n\\t\\s]*(.|\\n)+(!?\\}(.|\\n)*(public\\s)?function\\s+down\\s?\\(\\s*\\))#i", $input, $matches);
+        preg_match_all("#(schema\\:\\:create\\s?\\(\\'([a-z0-9_]+)\\'\\s*\\,\\s*function\\s*\\((blueprint\\s*)?\\$([a-z_]+)\\s*\\)(\\s|\\n|\\t)*\\{[^\\}]+\\}\\)\\;(\\s|\\n|\\t)*)+#i", $input, $matches);
 
-        if (count($matches)) {
-            $up = $matches[0];
-            $matches = [];
-            preg_match_all("#(schema\\:\\:create\\s?\\(\\'([a-z0-9_]+)\\'\\s*\\,\\s*function\\s*\\((blueprint\\s*)?\\$([a-z_]+)\\s*\\)(\\s|\\n|\\t)*\\{[^\\}]+\\}\\)\\;(\\s|\\n|\\t)*)+#i", $up, $matches);
+        if (count($matches) && array_key_exists(2, $matches)) {
+            //Tables in this migration
+            for ($i = 0; $i < count($matches[2]); $i++) {
+                $table = $matches[2][$i];
 
-            var_dump($matches);
-
-            if (count($matches) && array_key_exists(2, $matches)) {
-                //Tables in this migration
-                for ($i = 0; $i < count($matches[2]); $i++) {
-                    $table = $matches[2][$i];
-
-                    $this->create($table);
-                }
+                $this->create($table);
             }
         }
     }
