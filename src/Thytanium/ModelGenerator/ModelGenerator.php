@@ -25,6 +25,12 @@ class ModelGenerator
     protected $file;
 
     /**
+     * Created tables
+     * @var array
+     */
+    protected $created = [];
+
+    /**
      * @param File $file
      */
     public function __construct(File $file)
@@ -75,6 +81,26 @@ class ModelGenerator
         $newfile = $paths['models'].'/'.$classname.'.php';
         if ($force || !$this->file->exists($newfile)) {
             $this->file->put($newfile, $model);
+        }
+
+        $this->created[] = $table;
+    }
+
+    private function detectPivotTable($table)
+    {
+
+    }
+
+    private function dashCombinations($str)
+    {
+        if (substr_count($str, "_") === 0) {
+            return [];
+        }
+        else if (substr_count($str, "_") === 1) {
+            return [explode("_", $str)];
+        }
+        else {
+
         }
     }
 }
