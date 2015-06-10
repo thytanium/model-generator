@@ -40,22 +40,40 @@ class ModelGenerator
 
     public function build()
     {
-        foreach ($this->file->files(base_path('database/migrations')) as $file) {
+        /*foreach ($this->file->files(base_path('database/migrations')) as $file) {
             $this->handle($this->file->get($file));
-        }
+        }*/
+        $this->handle($this->file->get(base_path('database/migrations/2015_03_24_163041_create_resources_table.php')));
+        //$this->handle($this->file->get(base_path('database/migrations/2015_03_24_170539_create_store_tables.php')));
     }
 
     private function handle($input)
     {
         $matches = [];
-        preg_match_all("#(schema\\:\\:create\\s?\\(\\'([a-z0-9_]+)\\'\\s*\\,\\s*function\\s*\\((blueprint\\s*)?\\$([a-z_]+)\\s*\\)(\\s|\\n|\\t)*\\{[^\\}]+\\}\\)\\;(\\s|\\n|\\t)*)+#i", $input, $matches);
+        preg_match_all("#(schema\\:\\:create\\s?\\(\\'([a-z0-9_]+)\\'\\s*\\,\\s*function\\s*\\((\\s*blueprint\\s*)?\\$([a-z_]+)\\s*\\)(\\s|\\n|\\t)*\\{[^\\}]+\\}\\)\\;(\\s|\\n|\\t)*)+#i", $input, $matches);
 
         if (count($matches) && array_key_exists(2, $matches)) {
+            var_dump($matches);
+
             //Tables in this migration
             for ($i = 0; $i < count($matches[2]); $i++) {
                 $table = $matches[2][$i];
 
-                $this->create($table);
+                $combinations = self::dashCombinations($table);
+
+                //Tables without dashes
+                if (count($combinations) > 0 && count($combinations[0]) == 1) {
+                    $this->create($table);
+                }
+                else {
+                    //Look for pivot tables
+                    $pivot = $this->detectPivotTable($combinations);
+
+                    //If none found, create table as it is
+                    if (count($pivot) == 0) {
+                        $this->create($table);
+                    }
+                }
             }
         }
     }
@@ -86,21 +104,49 @@ class ModelGenerator
         $this->created[] = $table;
     }
 
-    private function detectPivotTable($table)
+    /**
+     * Search for (very) possible pivot tables
+     * @param $candidates
+     * @return array
+     */
+    private function detectPivotTable($candidates)
     {
-
+        $result = [];
+        foreach ($candidates as $tables) {
+            if (count($tables) == 2 &&
+                in_array(str_plural($tables[0]), $this->created) &&
+                in_array(str_plural($tables[1]), $this->created)) {
+                $result[] = $tables;
+            }
+        }
+        return $result;
     }
 
-    private function dashCombinations($str)
+    /**
+     * Find combinations for dashed table names
+     * hoping to find pivot tables
+     * @param $str
+     * @return array
+     */
+    private static function dashCombinations($str)
     {
-        if (substr_count($str, "_") === 0) {
-            return [];
-        }
-        else if (substr_count($str, "_") === 1) {
+        $total = substr_count($str, "_");
+        if ($total <= 1) {
             return [explode("_", $str)];
         }
         else {
-
+            //pos stores new position
+            //index stores last position
+            $index = 0;
+            $final = [];
+            while (($pos = strpos($str, "_", $index)) !== false) {
+                $index = $pos+1;
+                $final[] = [
+                    substr($str, 0, $pos),
+                    substr($str, $index),
+                ];
+            }
+            return $final;
         }
     }
 }

@@ -47,6 +47,8 @@ class GenerateModels extends Command
 	public function fire()
 	{
 		$this->generator->build();
+
+		$this->info("Models generated successfully.");
 	}
 
 	/**
