@@ -34,7 +34,13 @@ class ModelGenerator
      * Detected pivot tables
      * @var array
      */
-    protected $pivots = [];
+    public $pivots = [];
+
+    /**
+     * False pivot tables
+     * @var array
+     */
+    public $regulars = [];
 
     /**
      * @param File $file
@@ -44,7 +50,11 @@ class ModelGenerator
         $this->file = $file;
     }
 
-    public function build()
+    /**
+     * First round
+     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
+     */
+    public function firstRound()
     {
         foreach ($this->file->files(base_path('database/migrations')) as $file) {
             $this->handle($this->file->get($file));
@@ -53,6 +63,25 @@ class ModelGenerator
         //$this->handle($this->file->get(base_path('database/migrations/2015_03_24_170539_create_store_tables.php')));
     }
 
+    /**
+     * Second round (pivots)
+     */
+    public function secondRound()
+    {
+        foreach ($this->pivots as $pivot) {
+            //Create pivots
+        }
+
+        //Create regulars
+        foreach ($this->regulars as $table) {
+            $this->create($table);
+        }
+    }
+
+    /**
+     * Handle migration file
+     * @param $input
+     */
     private function handle($input)
     {
         $matches = [];
@@ -81,7 +110,7 @@ class ModelGenerator
                     //Store posible pivot
                     //to ask user later
                     else {
-                        $this->pivots[] = [$pivot];
+                        $this->pivots[] = $pivot;
                     }
                 }
             }

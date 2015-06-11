@@ -46,10 +46,73 @@ class GenerateModels extends Command
 	 */
 	public function fire()
 	{
-		$this->generator->build();
+        //First round
+		$this->generator->firstRound();
+
+        //Ask for pivots
+        $this->askPivots();
+
+        //Second round
+        $this->generator->secondRound();
 
 		$this->info("Models generated successfully.");
 	}
+
+    private function askPivots()
+    {
+        foreach ($this->generator->pivots as $k => $pivot) {
+            //If it's only one choice
+            if (count($pivot) == 1) {
+                $table = implode("_", $pivot[0]);
+                if (!$this->confirm("Is `{$table}` a pivot table?", true)) {
+                    $this->generator->regulars[] = $table;
+                    unset($pivot);
+                }
+            }
+            //If there's more than one choice
+            else {
+                $confirmed = false;
+                $regulars = [];
+
+                //First round
+                for ($i = 0; $i < count($pivot) && $confirmed; $i++) {
+                    $table = implode("_", $pivot[$i]);
+                    if ($this->confirm("Is `{$table}` a pivot table?", true)) {
+                        $confirmed = true;
+                    }
+                    else {
+                        $regulars[] = $table;
+                    }
+                }
+
+                //Confirmed, forget about the other ones
+                if ($confirmed) {
+                    for ($j = $i+1; $j < count($pivot); $j++) {
+                        unset($pivot[$j]);
+                    }
+                }
+                //None of them are pivots
+                else {
+                    unset($pivot);
+                }
+
+                //Second round
+                $confirmed = false;
+                for ($i = 0; $i < count($regulars) && $confirmed; $i++) {
+                    $table = $regulars[$i];
+                    if ($this->confirm("Is `{$table}` a regular table?", true)) {
+                        $this->generator->regulars[] = $table;
+                        $confirmed = true;
+                    }
+                }
+            }
+        }
+
+        //Re-arrange pivots
+        foreach ($this->generator->pivots as $k => $pivot) {
+            $this->generator->pivots[$k] = array_values($pivot);
+        }
+    }
 
 	/**
 	 * Get the console command arguments.
