@@ -56,11 +56,11 @@ class ModelGenerator
      */
     public function firstRound()
     {
-        foreach ($this->file->files(base_path('database/migrations')) as $file) {
+        /*foreach ($this->file->files(base_path('database/migrations')) as $file) {
             $this->handle($this->file->get($file));
-        }
+        }*/
         //$this->handle($this->file->get(base_path('database/migrations/2015_03_24_163041_create_resources_table.php')));
-        //$this->handle($this->file->get(base_path('database/migrations/2015_03_24_170539_create_store_tables.php')));
+        $this->handle($this->file->get(base_path('database/migrations/2015_03_24_170539_create_store_tables.php')));
     }
 
     /**
@@ -90,14 +90,16 @@ class ModelGenerator
         if (count($matches) && array_key_exists(2, $matches)) {
             //Tables in this migration
             for ($i = 0; $i < count($matches[2]); $i++) {
+                $schema = $matches[0][$i];
                 $table = $matches[2][$i];
+                $fields = $this->fields($schema);
 
                 //Get combinations of dashed tables
                 $combinations = self::dashCombinations($table);
 
                 //Tables without dashes
                 if (count($combinations) > 0 && count($combinations[0]) == 1) {
-                    $this->create($table);
+                    $this->create($table, $this->fillable($fields));
                 }
                 else {
                     //Look for pivot tables
@@ -120,10 +122,11 @@ class ModelGenerator
     /**
      * Create model file
      * @param $table
+     * @param string $fillable
      * @param bool $force
      * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
      */
-    private function create($table, $force = false)
+    private function create($table, $fillable = "", $force = false)
     {
         $paths = [
             'templates' => __DIR__.'/../../../templates',
@@ -137,7 +140,7 @@ class ModelGenerator
         $model = $this->file->get($paths['templates'].'/Model.txt');
         $model = str_replace('<!--namespace-->', $namespace, $model);
         $model = str_replace('<!--classname-->', $classname, $model);
-        $model = str_replace('<!--properties-->', '', $model);
+        $model = str_replace('<!--fillable-->', $fillable, $model);
         $model = str_replace('<!--relations-->', '', $model);
 
         //Store file
@@ -193,5 +196,35 @@ class ModelGenerator
             }
             return $final;
         }
+    }
+
+    /**
+     * Searches for fields names and types
+     * @param $input
+     * @return array
+     */
+    private function fields($input)
+    {
+        $matches = [];
+        preg_match_all("#\\$\\w+\\-\\>(string|(tiny|small|medium|big|long)?(text|integer)|enum|binary|boolean|char|date|datetime|decimal|double|float|time)\\s*\\(\\s*\\'\\s*(\\w+)\\'\\s*\\,?\\s*([\\w]*)\\s*\\)\\s*#i", $input, $matches);
+
+        if (count($matches) && array_key_exists(4, $matches)) {
+            return $matches[4];
+        }
+
+        return [];
+    }
+
+    /**
+     * Creates fillable array form
+     * @param $input
+     * @return string
+     */
+    private function fillable($input) {
+        $input = array_map(function($i) {
+            return "'{$i}'";
+        }, $input);
+
+        return implode(", ", $input);
     }
 }

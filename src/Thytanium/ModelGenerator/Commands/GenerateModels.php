@@ -58,6 +58,9 @@ class GenerateModels extends Command
 		$this->info("Models generated successfully.");
 	}
 
+    /**
+     * Ask which tables are pivots and which are not
+     */
     private function askPivots()
     {
         foreach ($this->generator->pivots as $k => $pivot) {
@@ -72,7 +75,7 @@ class GenerateModels extends Command
             //If there's more than one choice
             else {
                 $confirmed = false;
-                $regulars = [];
+                $uncertain = [];
 
                 //First round
                 for ($i = 0; $i < count($pivot) && $confirmed; $i++) {
@@ -81,7 +84,7 @@ class GenerateModels extends Command
                         $confirmed = true;
                     }
                     else {
-                        $regulars[] = $table;
+                        $uncertain[] = $table;
                     }
                 }
 
@@ -98,8 +101,8 @@ class GenerateModels extends Command
 
                 //Second round
                 $confirmed = false;
-                for ($i = 0; $i < count($regulars) && $confirmed; $i++) {
-                    $table = $regulars[$i];
+                for ($i = 0; $i < count($uncertain) && $confirmed; $i++) {
+                    $table = $uncertain[$i];
                     if ($this->confirm("Is `{$table}` a regular table?", true)) {
                         $this->generator->regulars[] = $table;
                         $confirmed = true;
