@@ -31,6 +31,12 @@ class ModelGenerator
     protected $created = [];
 
     /**
+     * Detected pivot tables
+     * @var array
+     */
+    protected $pivots = [];
+
+    /**
      * @param File $file
      */
     public function __construct(File $file)
@@ -40,10 +46,10 @@ class ModelGenerator
 
     public function build()
     {
-        /*foreach ($this->file->files(base_path('database/migrations')) as $file) {
+        foreach ($this->file->files(base_path('database/migrations')) as $file) {
             $this->handle($this->file->get($file));
-        }*/
-        $this->handle($this->file->get(base_path('database/migrations/2015_03_24_163041_create_resources_table.php')));
+        }
+        //$this->handle($this->file->get(base_path('database/migrations/2015_03_24_163041_create_resources_table.php')));
         //$this->handle($this->file->get(base_path('database/migrations/2015_03_24_170539_create_store_tables.php')));
     }
 
@@ -53,12 +59,11 @@ class ModelGenerator
         preg_match_all("#(schema\\:\\:create\\s?\\(\\'([a-z0-9_]+)\\'\\s*\\,\\s*function\\s*\\((\\s*blueprint\\s*)?\\$([a-z_]+)\\s*\\)(\\s|\\n|\\t)*\\{[^\\}]+\\}\\)\\;(\\s|\\n|\\t)*)+#i", $input, $matches);
 
         if (count($matches) && array_key_exists(2, $matches)) {
-            var_dump($matches);
-
             //Tables in this migration
             for ($i = 0; $i < count($matches[2]); $i++) {
                 $table = $matches[2][$i];
 
+                //Get combinations of dashed tables
                 $combinations = self::dashCombinations($table);
 
                 //Tables without dashes
@@ -73,11 +78,22 @@ class ModelGenerator
                     if (count($pivot) == 0) {
                         $this->create($table);
                     }
+                    //Store posible pivot
+                    //to ask user later
+                    else {
+                        $this->pivots[] = [$pivot];
+                    }
                 }
             }
         }
     }
 
+    /**
+     * Create model file
+     * @param $table
+     * @param bool $force
+     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
+     */
     private function create($table, $force = false)
     {
         $paths = [
