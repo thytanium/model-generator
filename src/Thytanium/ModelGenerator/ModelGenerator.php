@@ -107,7 +107,7 @@ class ModelGenerator
 
                     //If none found, create table as it is
                     if (count($pivot) == 0) {
-                        $this->create($table);
+                        $this->create($table, $this->fillable($fields));
                     }
                     //Store posible pivot
                     //to ask user later
