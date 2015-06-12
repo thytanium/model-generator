@@ -8,5 +8,5 @@ class <!--classname--> extends Model
 {
     public $fillable = [<!--fillable-->];
 
-    <!--relations-->
+    public $rules = [<!--rules-->];
 }

@@ -56,11 +56,11 @@ class ModelGenerator
      */
     public function firstRound()
     {
-        /*foreach ($this->file->files(base_path('database/migrations')) as $file) {
+        foreach ($this->file->files(base_path('database/migrations')) as $file) {
             $this->handle($this->file->get($file));
-        }*/
+        }
         //$this->handle($this->file->get(base_path('database/migrations/2015_03_24_163041_create_resources_table.php')));
-        $this->handle($this->file->get(base_path('database/migrations/2015_03_24_170539_create_store_tables.php')));
+        //$this->handle($this->file->get(base_path('database/migrations/2015_03_24_170539_create_store_tables.php')));
     }
 
     /**
@@ -141,6 +141,7 @@ class ModelGenerator
         $model = str_replace('<!--namespace-->', $namespace, $model);
         $model = str_replace('<!--classname-->', $classname, $model);
         $model = str_replace('<!--fillable-->', $fillable, $model);
+        $model = str_replace('<!--rules-->', '', $model);
         $model = str_replace('<!--relations-->', '', $model);
 
         //Store file
@@ -225,6 +226,6 @@ class ModelGenerator
             return "'{$i}'";
         }, $input);
 
-        return implode(", ", $input);
+        return "\n\t\t".implode(",\n\t\t", $input)."\n\t";
     }
 }
