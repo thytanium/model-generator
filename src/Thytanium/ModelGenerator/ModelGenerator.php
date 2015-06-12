@@ -4,6 +4,7 @@ namespace Thytanium\ModelGenerator;
 
 use Illuminate\Filesystem\Filesystem as File;
 use Illuminate\Console\AppNamespaceDetectorTrait as AppNamespace;
+use Illuminate\Support\Collection;
 
 /**
  * Class ModelGenerator
@@ -56,11 +57,11 @@ class ModelGenerator
      */
     public function firstRound()
     {
-        foreach ($this->file->files(base_path('database/migrations')) as $file) {
+        /*foreach ($this->file->files(base_path('database/migrations')) as $file) {
             $this->handle($this->file->get($file));
-        }
+        }*/
         //$this->handle($this->file->get(base_path('database/migrations/2015_03_24_163041_create_resources_table.php')));
-        //$this->handle($this->file->get(base_path('database/migrations/2015_03_24_170539_create_store_tables.php')));
+        $this->handle($this->file->get(base_path('database/migrations/2015_03_24_170539_create_store_tables.php')));
     }
 
     /**
@@ -99,7 +100,11 @@ class ModelGenerator
 
                 //Tables without dashes
                 if (count($combinations) > 0 && count($combinations[0]) == 1) {
-                    $this->create($table, $this->fillable($fields));
+                    $this->create(
+                        $table,
+                        $this->fillable($fields->lists('field')->toArray()),
+                        $this->rules($fields, $table)
+                    );
                 }
                 else {
                     //Look for pivot tables
@@ -107,7 +112,11 @@ class ModelGenerator
 
                     //If none found, create table as it is
                     if (count($pivot) == 0) {
-                        $this->create($table, $this->fillable($fields));
+                        $this->create(
+                            $table,
+                            $this->fillable($fields->lists('field')->toArray()),
+                            $this->rules($fields, $table)
+                        );
                     }
                     //Store posible pivot
                     //to ask user later
@@ -123,10 +132,11 @@ class ModelGenerator
      * Create model file
      * @param $table
      * @param string $fillable
+     * @param string $rules
      * @param bool $force
      * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
      */
-    private function create($table, $fillable = "", $force = false)
+    private function create($table, $fillable = "", $rules = "", $force = false)
     {
         $paths = [
             'templates' => __DIR__.'/../../../templates',
@@ -141,7 +151,7 @@ class ModelGenerator
         $model = str_replace('<!--namespace-->', $namespace, $model);
         $model = str_replace('<!--classname-->', $classname, $model);
         $model = str_replace('<!--fillable-->', $fillable, $model);
-        $model = str_replace('<!--rules-->', '', $model);
+        $model = str_replace('<!--rules-->', $rules, $model);
         $model = str_replace('<!--relations-->', '', $model);
 
         //Store file
@@ -206,14 +216,26 @@ class ModelGenerator
      */
     private function fields($input)
     {
-        $matches = [];
-        preg_match_all("#\\$\\w+\\-\\>(string|(tiny|small|medium|big|long)?(text|integer)|enum|binary|boolean|char|date|datetime|decimal|double|float|time)\\s*\\(\\s*\\'\\s*(\\w+)\\'\\s*\\,?\\s*([\\w]*)\\s*\\)\\s*#i", $input, $matches);
+        $matches = $fields = [];
+        preg_match_all("#\\$\\w+\\-\\>(string|(tiny|small|medium|big|long)?(text|integer)|enum|binary|boolean|char|date|datetime|decimal|double|float|time)\\s*\\(\\s*\\'\\s*(\\w+)\\'\\s*\\,?\\s*(\\[?[\\w\\,\\s]*\\]?)\\s*\\)(\\s|\\n|\\t)*(\\-\\>(unique|nullable)\\(\\)(\\;|\\n|\\t|\\s)*){0,2}#i", $input, $matches);
 
         if (count($matches) && array_key_exists(4, $matches)) {
-            return $matches[4];
+            for ($i = 0; $i < count($matches[1]); $i++) {
+                $fields[] = [
+                    'type' => $matches[1][$i],
+                    'field' => $matches[4][$i],
+                    'size' => $matches[5][$i],
+                    'options' => [
+                        array_key_exists(8, $matches) ? $matches[8][$i] : "",
+                        array_key_exists(10, $matches) ? $matches[10][$i] : "",
+                    ],
+                ];
+            }
+
+            return new Collection($fields);
         }
 
-        return [];
+        return new Collection;
     }
 
     /**
@@ -223,9 +245,56 @@ class ModelGenerator
      */
     private function fillable($input) {
         $input = array_map(function($i) {
-            return "'{$i}'";
+            return '"'.$i.'"';
         }, $input);
 
         return "\n\t\t".implode(",\n\t\t", $input)."\n\t";
+    }
+
+    /**
+     * Creates basic validation rules
+     * @param $input
+     * @param $table
+     * @return string
+     */
+    private function rules($input, $table)
+    {
+        $rules = [];
+
+        $input->each(function($field) use (&$rules, $table) {
+            $aux = [];
+
+            //Required
+            if (!in_array("nullable", $field['options'])) {
+                $aux[] = 'required';
+            }
+
+            //Integer
+            if (preg_match("|integer$|i", $field['type'])) {
+                $aux[] = 'integer';
+            }
+            //Double
+            else if ($field['type'] == 'double') {
+                $aux[] = 'numeric';
+            }
+            //Date
+            else if (in_array($field['type'], ['date', 'dateTime', 'timestamp'])) {
+                $aux[] = 'date';
+            }
+
+            //Max or enum
+            if (strlen($field['size'])) {
+                $aux[] = (is_numeric($field['size']) ? 'max:' : 'in:') . $field['size'];
+            }
+
+            //Unique
+            if (in_array("unique", $field['options'])) {
+                $aux[] = 'unique:'.$table;
+            }
+
+            $rules[] = '"'.$field['field'].'" => "'.implode($aux, "|").'"';
+        });
+
+        return "\n\t\t".implode(",\n\t\t", $rules)."\n\t";
     }
 }

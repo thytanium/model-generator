@@ -4,9 +4,22 @@ namespace <!--namespace-->;
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * <!--classname--> model
+ * Generated with thytanium/model-generator
+ * @link https://github.com/thytanium/model-generator
+ */
 class <!--classname--> extends Model
 {
-    public $fillable = [<!--fillable-->];
+    /**
+     * Fillable fields
+     * @var array
+     */
+    protected $fillable = [<!--fillable-->];
 
-    public $rules = [<!--rules-->];
+    /**
+     * Validation rules
+     * @var array
+     */
+    public static $rules = [<!--rules-->];
 }
