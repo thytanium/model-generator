@@ -281,6 +281,10 @@ class ModelGenerator
             else if (in_array($field['type'], ['date', 'dateTime', 'timestamp'])) {
                 $aux[] = 'date';
             }
+            //Email
+            else if ($field['field'] == 'email') {
+                $aux[] = 'email';
+            }
 
             //Max or enum
             if (strlen($field['size'])) {
