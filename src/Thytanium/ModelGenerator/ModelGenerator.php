@@ -57,11 +57,12 @@ class ModelGenerator
      */
     public function firstRound()
     {
-        /*foreach ($this->file->files(base_path('database/migrations')) as $file) {
+        foreach ($this->file->files(base_path('database/migrations')) as $file) {
             $this->handle($this->file->get($file));
-        }*/
+        }
         //$this->handle($this->file->get(base_path('database/migrations/2015_03_24_163041_create_resources_table.php')));
-        $this->handle($this->file->get(base_path('database/migrations/2015_03_24_170539_create_store_tables.php')));
+        //$this->handle($this->file->get(base_path('database/migrations/2015_03_24_170539_create_store_tables.php')));
+        //$this->handle($this->file->get(base_path('database/migrations/2015_06_13_095532_test_products.php')));
     }
 
     /**
@@ -217,7 +218,7 @@ class ModelGenerator
     private function fields($input)
     {
         $matches = $fields = [];
-        preg_match_all("#\\$\\w+\\-\\>(string|(tiny|small|medium|big|long)?(text|integer)|enum|binary|boolean|char|date|datetime|decimal|double|float|time)\\s*\\(\\s*\\'\\s*(\\w+)\\'\\s*\\,?\\s*(\\[?[\\w\\,\\s]*\\]?)\\s*\\)(\\s|\\n|\\t)*(\\-\\>(unique|nullable)\\(\\)(\\;|\\n|\\t|\\s)*){0,2}#i", $input, $matches);
+        preg_match_all("#\\$\\w+\\-\\>(string|(tiny|small|medium|big|long)?(text|integer)|enum|binary|boolean|char|date|datetime|decimal|double|float|time)\\s*\\(\\s*\\'\\s*(\\w+)\\'\\s*\\,?\\s*(\\[?[\\w\\,\\s]*\\]?)\\s*\\)(\\s|\\n|\\t)*(\\-\\>(unsigned|unique|nullable|default)\\(\\)(\\;|\\n|\\t|\\s)*)?(\\-\\>(unsigned|unique|nullable|default)\\(\\)(\\;|\\n|\\t|\\s)*)?#i", $input, $matches);
 
         if (count($matches) && array_key_exists(4, $matches)) {
             for ($i = 0; $i < count($matches[1]); $i++) {
@@ -227,7 +228,7 @@ class ModelGenerator
                     'size' => $matches[5][$i],
                     'options' => [
                         array_key_exists(8, $matches) ? $matches[8][$i] : "",
-                        array_key_exists(10, $matches) ? $matches[10][$i] : "",
+                        array_key_exists(11, $matches) ? $matches[11][$i] : "",
                     ],
                 ];
             }
