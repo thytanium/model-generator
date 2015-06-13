@@ -102,7 +102,7 @@ class ModelGenerator
                 if (count($combinations) > 0 && count($combinations[0]) == 1) {
                     $this->create(
                         $table,
-                        $this->fillable($fields->lists('field')->toArray()),
+                        $this->fillable($fields->lists('field')),
                         $this->rules($fields, $table)
                     );
                 }
@@ -114,7 +114,7 @@ class ModelGenerator
                     if (count($pivot) == 0) {
                         $this->create(
                             $table,
-                            $this->fillable($fields->lists('field')->toArray()),
+                            $this->fillable($fields->lists('field')),
                             $this->rules($fields, $table)
                         );
                     }
