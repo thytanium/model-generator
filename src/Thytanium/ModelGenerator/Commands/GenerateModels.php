@@ -49,6 +49,9 @@ class GenerateModels extends Command
         //First round
 		$this->generator->firstRound();
 
+        //Ask for relations
+        $this->askRelations();
+
         //Ask for pivots
         $this->askPivots();
 
@@ -114,6 +117,21 @@ class GenerateModels extends Command
         //Re-arrange pivots
         foreach ($this->generator->pivots as $k => $pivot) {
             $this->generator->pivots[$k] = array_values($pivot);
+        }
+    }
+
+    /**
+     * Ask to the developer which relations are OTO and which are OTM
+     */
+    private function askRelations()
+    {
+        foreach ($this->generator->relations as $relation) {
+            //Ask
+            $choice = $this->ask("Is the relation between `".$relation['table']."(".$relation['local_id'].")`"
+                                    ."and `".$relation['foreign_table']."(".$relation['foreign_id'].")`"
+                                    ."1:One to Many? or 2:One to One?", '1');
+
+            $choice == '2' ? $this->generator->oneToOne[] = $relation : $this->generator->oneToMany[] = $relation;
         }
     }
 

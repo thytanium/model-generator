@@ -15,12 +15,6 @@ class ModelGenerator
     use AppNamespace;
 
     /**
-     * Temp relations list
-     * @var array
-     */
-    protected $relations;
-
-    /**
      * @var File
      */
     protected $file;
@@ -44,6 +38,24 @@ class ModelGenerator
     public $regulars = [];
 
     /**
+     * One to one relations
+     * @var array
+     */
+    public $oneToOne = [];
+
+    /**
+     * One to many relations
+     * @var array
+     */
+    public $oneToMany = [];
+
+    /**
+     * Temporary relations
+     * @var array
+     */
+    public $relations = [];
+
+    /**
      * @param File $file
      */
     public function __construct(File $file)
@@ -57,12 +69,12 @@ class ModelGenerator
      */
     public function firstRound()
     {
-        foreach ($this->file->files(base_path('database/migrations')) as $file) {
+        /*foreach ($this->file->files(base_path('database/migrations')) as $file) {
             $this->handle($this->file->get($file));
-        }
+        }*/
         //$this->handle($this->file->get(base_path('database/migrations/2015_03_24_163041_create_resources_table.php')));
         //$this->handle($this->file->get(base_path('database/migrations/2015_03_24_170539_create_store_tables.php')));
-        //$this->handle($this->file->get(base_path('database/migrations/2015_06_13_095532_test_products.php')));
+        $this->handle($this->file->get(base_path('database/migrations/2015_06_13_095532_test_products.php')));
     }
 
     /**
@@ -100,27 +112,26 @@ class ModelGenerator
                 $combinations = self::dashCombinations($table);
 
                 //Tables without dashes
-                if (count($combinations) > 0 && count($combinations[0]) == 1) {
-                    $this->create(
-                        $table,
-                        $this->fillable($fields->lists('field')),
-                        $this->rules($fields, $table)
-                    );
-                }
-                else {
+                if (count($combinations) > 0) {
                     //Look for pivot tables
                     $pivot = $this->detectPivotTable($combinations);
 
-                    //If none found, create table as it is
+                    //If no pivot is found, create table
                     if (count($pivot) == 0) {
                         $this->create(
                             $table,
                             $this->fillable($fields->lists('field')),
                             $this->rules($fields, $table)
                         );
+
+                        //Relations
+                        $this->relations = array_merge(
+                            $this->relations,
+                            $this->relations($schema, $table)
+                        );
                     }
-                    //Store posible pivot
-                    //to ask user later
+                    //Add temporary pivot table
+                    //to ask the developer later
                     else {
                         $this->pivots[] = $pivot;
                     }
@@ -301,5 +312,31 @@ class ModelGenerator
         });
 
         return "\n\t\t".implode(",\n\t\t", $rules)."\n\t";
+    }
+
+    /**
+     * Look for relations
+     * @param $input
+     * @param $table
+     * @return array
+     */
+    private function relations($input, $table)
+    {
+        $matches = $relations = [];
+
+        preg_match_all("#\\$\\w+\\-\\>foreign\\s*\\(\\s*\\'(\\w+)\\'\\s*\\)[\\s\\n\\t]*\\-\\>references\\s*\\(\\s*\\'(\\w+)\\'\\s*\\)[\\s\\n\\t]*\\-\\>on\\s*\\(\\s*\\'(\\w+)\\'\\s*\\)#i", $input, $matches);
+
+        if (count($matches) == 4) {
+            for ($i = 0; $i < count($matches[1]); $i++) {
+                $relations[] = [
+                    'table' => $table,
+                    'local_id' => $matches[1][$i],
+                    'foreign_id' => $matches[2][$i],
+                    'foreign_table' => $matches[3][$i],
+                ];
+            }
+        }
+
+        return $relations;
     }
 }
