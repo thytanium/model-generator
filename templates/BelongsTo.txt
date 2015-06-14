@@ -1,0 +1,4 @@
+public function <!--function-->()
+{
+    return $this->belongsTo('<!--model-->');
+}

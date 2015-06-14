@@ -87,8 +87,8 @@ class ModelGenerator
         }
 
         //Create regulars
-        foreach ($this->regulars as $table) {
-            $this->create($table);
+        foreach ($this->regulars as $table => $options) {
+            $this->create($table, $options['fillable'], $options['rules']);
         }
     }
 
@@ -118,11 +118,11 @@ class ModelGenerator
 
                     //If no pivot is found, create table
                     if (count($pivot) == 0) {
-                        $this->create(
-                            $table,
-                            $this->fillable($fields->lists('field')),
-                            $this->rules($fields, $table)
-                        );
+                        //Regular table
+                        $this->regulars[$table] = [
+                            'fillable' => $this->fillable($fields->lists('field')),
+                            'rules' => $this->rules($fields, $table),
+                        ];
 
                         //Relations
                         $this->relations = array_merge(
@@ -338,5 +338,16 @@ class ModelGenerator
         }
 
         return $relations;
+    }
+
+    private function processRelations()
+    {
+        $relations = [];
+
+        //One to one
+        foreach ($this->oneToMany as $relation) {
+            //BelongsTo
+
+        }
     }
 }
