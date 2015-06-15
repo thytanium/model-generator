@@ -63,12 +63,12 @@ class ModelGenerator
      */
     public function firstRound()
     {
-        /*foreach ($this->file->files(base_path('database/migrations')) as $file) {
+        foreach ($this->file->files(base_path('database/migrations')) as $file) {
             $this->handle($this->file->get($file));
-        }*/
+        }
         //$this->handle($this->file->get(base_path('database/migrations/2015_03_24_163041_create_resources_table.php')));
         //$this->handle($this->file->get(base_path('database/migrations/2015_03_24_170539_create_store_tables.php')));
-        $this->handle($this->file->get(base_path('database/migrations/2015_06_13_095532_test_products.php')));
+        //$this->handle($this->file->get(base_path('database/migrations/2015_06_13_095532_test_products.php')));
     }
 
     /**

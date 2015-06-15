@@ -129,9 +129,11 @@ class GenerateModels extends Command
             //Ask
             $choice = $this->ask("Is the relation between `".$relation['table']."(".$relation['local_id'].")`"
                                     ."and `".$relation['foreign_table']."(".$relation['foreign_id'].")`"
-                                    ."1:One to Many? or 2:One to One?", '1');
+                                    ."1:One to Many? or 2:One to One? or 3:None", '1');
 
-            $choice == '2' ? $this->generator->oneToOne[] = $relation : $this->generator->oneToMany[] = $relation;
+            if ($choice != '3') {
+                $choice == '2' ? $this->generator->oneToOne[] = $relation : $this->generator->oneToMany[] = $relation;
+            }
         }
     }
 
