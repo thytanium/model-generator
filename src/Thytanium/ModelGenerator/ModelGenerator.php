@@ -366,7 +366,7 @@ class ModelGenerator
     }
 
     /**
-     * Process belongs relations
+     * Process "belongs" relations
      * @param $relations
      * @return array
      */
@@ -402,6 +402,7 @@ class ModelGenerator
     }
 
     /**
+     * Process "has" relations
      * Mode 1 = One to One
      * Mode 2 = One to Many
      * @param $relations
