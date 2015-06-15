@@ -22,4 +22,6 @@ class <!--classname--> extends Model
      * @var array
      */
     public static $rules = [<!--rules-->];
+
+<!--relations-->
 }

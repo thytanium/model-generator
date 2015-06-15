@@ -1,0 +1,8 @@
+    /**
+     * Relation with <!--model-->
+     * @return Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function <!--function-->()
+    {
+        return $this->hasOne('<!--model-->'<!--options-->);
+    }

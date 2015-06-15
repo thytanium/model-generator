@@ -20,12 +20,6 @@ class ModelGenerator
     protected $file;
 
     /**
-     * Created tables
-     * @var array
-     */
-    protected $created = [];
-
-    /**
      * Detected pivot tables
      * @var array
      */
@@ -82,13 +76,18 @@ class ModelGenerator
      */
     public function secondRound()
     {
-        foreach ($this->pivots as $pivot) {
-            //Create pivots
-        }
-
         //Create regulars
         foreach ($this->regulars as $table => $options) {
-            $this->create($table, $options['fillable'], $options['rules']);
+            $this->create(
+                $table,
+                $options['fillable'],
+                $options['rules'],
+                $this->searchRelations($table)
+            );
+        }
+
+        foreach ($this->pivots as $pivot) {
+            //Create pivots
         }
     }
 
@@ -145,10 +144,11 @@ class ModelGenerator
      * @param $table
      * @param string $fillable
      * @param string $rules
+     * @param string $relations
      * @param bool $force
      * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
      */
-    private function create($table, $fillable = "", $rules = "", $force = false)
+    private function create($table, $fillable = "", $rules = "", $relations = "", $force = false)
     {
         $paths = [
             'templates' => __DIR__.'/../../../templates',
@@ -164,15 +164,13 @@ class ModelGenerator
         $model = str_replace('<!--classname-->', $classname, $model);
         $model = str_replace('<!--fillable-->', $fillable, $model);
         $model = str_replace('<!--rules-->', $rules, $model);
-        $model = str_replace('<!--relations-->', '', $model);
+        $model = str_replace('<!--relations-->', $relations, $model);
 
         //Store file
         $newfile = $paths['models'].'/'.$classname.'.php';
         if ($force || !$this->file->exists($newfile)) {
             $this->file->put($newfile, $model);
         }
-
-        $this->created[] = $table;
     }
 
     /**
@@ -185,8 +183,8 @@ class ModelGenerator
         $result = [];
         foreach ($candidates as $tables) {
             if (count($tables) == 2 &&
-                in_array(str_plural($tables[0]), $this->created) &&
-                in_array(str_plural($tables[1]), $this->created)) {
+                array_key_exists(str_plural($tables[0]), $this->regulars) &&
+                array_key_exists(str_plural($tables[1]), $this->regulars)) {
                 $result[] = $tables;
             }
         }
@@ -256,6 +254,13 @@ class ModelGenerator
      * @return string
      */
     private function fillable($input) {
+        //In Illuminate\Support >=5.1
+        //Collection->lists() returns a Collection
+        //not an array
+        if (is_object($input) && is_a($input, 'Illuminate\Support\Collection')) {
+            $input = $input->toArray();
+        }
+
         $input = array_map(function($i) {
             return '"'.$i.'"';
         }, $input);
@@ -340,14 +345,112 @@ class ModelGenerator
         return $relations;
     }
 
-    private function processRelations()
+    /**
+     * Process relations
+     * @param $table
+     * @return array
+     */
+    private function searchRelations($table)
     {
-        $relations = [];
+        $belongsOTO = $this->belongs(self::filter('table', $table, $this->oneToOne));
+        $belongsOTM = $this->belongs(self::filter('table', $table, $this->oneToMany));
+        $hasOTO = $this->has(self::filter('foreign_table', $table, $this->oneToOne), 1);
+        $hasOTM = $this->has(self::filter('foreign_table', $table, $this->oneToMany), 2);
 
-        //One to one
-        foreach ($this->oneToMany as $relation) {
-            //BelongsTo
+        return implode("\n\n", array_merge(
+            $belongsOTO,
+            $belongsOTM,
+            $hasOTO,
+            $hasOTM
+        ));
+    }
 
-        }
+    /**
+     * Process belongs relations
+     * @param $relations
+     * @return array
+     */
+    private function belongs($relations)
+    {
+        //Path to templates
+        $path = __DIR__.'/../../../templates/';
+        $output = [];
+
+        //BelongsTo
+        $relations->each(function ($r) use (&$output, $path) {
+            //Convert table name to model name
+            $table = $r['foreign_table'];
+            $singularTable = str_singular($table);
+            $model = ucfirst(camel_case($singularTable));
+
+            //Options
+            $field = preg_replace("|_id$|", "", $r['local_id']);
+            $options = $field != $singularTable ? ", '".$r['local_id']."'" : "";
+
+            //Open template file
+            $str = $this->file->get($path."BelongsTo.txt");
+
+            //Replace fields
+            $str = str_replace("<!--function-->", str_singular($table), $str);
+            $str = str_replace("<!--model-->", $model, $str);
+            $str = str_replace("<!--options-->", $options, $str);
+
+            $output[] = $str;
+        });
+
+        return $output;
+    }
+
+    /**
+     * Mode 1 = One to One
+     * Mode 2 = One to Many
+     * @param $relations
+     * @param $mode
+     * @return array
+     */
+    private function has($relations, $mode)
+    {
+        //Path to templates
+        $path = __DIR__.'/../../../templates/';
+        $output = [];
+
+        //Has
+        $relations->each(function ($r) use (&$output, $path, $mode) {
+            //Convert table name to model name
+            $table = $r['table'];
+            $model = ucfirst(camel_case(str_singular($table)));
+
+            //Options
+            $singularTable = str_singular($r['foreign_table']);
+            $field = preg_replace("|_id$|", "", $r['local_id']);
+            $options = $field != $singularTable ? ", '".$r['local_id']."'" : "";
+
+            //Open template file
+            $str = $this->file->get($path."Has".($mode == 1 ? "One" : "Many").".txt");
+
+            //Replace fields
+            $str = str_replace("<!--function-->", $mode == 1 ? str_singular($table) : $table, $str);
+            $str = str_replace("<!--model-->", $model, $str);
+            $str = str_replace("<!--options-->", $options, $str);
+
+            $output[] = $str;
+        });
+
+        return $output;
+    }
+
+    /**
+     * Filter specific table from relations array
+     * @param $input
+     * @param $haystack
+     * @return static
+     */
+    private static function filter($field, $input, $haystack)
+    {
+        $temp = new Collection($haystack);
+
+        return $temp->filter(function ($t) use ($field, $input) {
+            return $t[$field] == $input;
+        });
     }
 }
