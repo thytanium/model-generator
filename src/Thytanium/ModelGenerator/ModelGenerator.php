@@ -85,10 +85,6 @@ class ModelGenerator
                 $this->searchRelations($table)
             );
         }
-
-        foreach ($this->pivots as $pivot) {
-            //Create pivots
-        }
     }
 
     /**
@@ -257,7 +253,7 @@ class ModelGenerator
         //In Illuminate\Support >=5.1
         //Collection->lists() returns a Collection
         //not an array
-        if (is_object($input) && is_a($input, 'Illuminate\Support\Collection')) {
+        if (is_object($input) && is_a($input, '\Illuminate\Support\Collection')) {
             $input = $input->toArray();
         }
 
@@ -356,12 +352,14 @@ class ModelGenerator
         $belongsOTM = $this->belongs(self::filter('table', $table, $this->oneToMany));
         $hasOTO = $this->has(self::filter('foreign_table', $table, $this->oneToOne), 1);
         $hasOTM = $this->has(self::filter('foreign_table', $table, $this->oneToMany), 2);
+        $belongsTM = $this->pivots($table);
 
         return implode("\n\n", array_merge(
             $belongsOTO,
             $belongsOTM,
             $hasOTO,
-            $hasOTM
+            $hasOTM,
+            $belongsTM
         ));
     }
 
@@ -436,6 +434,38 @@ class ModelGenerator
 
             $output[] = $str;
         });
+
+        return $output;
+    }
+
+    /**
+     * Process many to many relations
+     * @param $table
+     * @return array
+     */
+    private function pivots($table)
+    {
+        //Path to templates
+        $path = __DIR__.'/../../../templates/';
+        $output = [];
+
+        foreach ($this->pivots as $pivot) {
+            if (array_key_exists(0, $pivot) && in_array(str_singular($table), $pivot[0])) {
+                //Model name
+                $function = str_plural($pivot[0][0] == str_singular($table) ? $pivot[0][1] : $pivot[0][0]);
+                $model = ucfirst(camel_case($pivot[0][0] == str_singular($table) ? $pivot[0][1] : $pivot[0][0]));
+
+                //Open template file
+                $str = $this->file->get($path."BelongsToMany.txt");
+
+                //Replace fields
+                $str = str_replace("<!--function-->", $function, $str);
+                $str = str_replace("<!--model-->", $model, $str);
+                $str = str_replace("<!--options-->", '', $str);
+
+                $output[] = $str;
+            }
+        }
 
         return $output;
     }
