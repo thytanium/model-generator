@@ -47,7 +47,7 @@ class GenerateModels extends Command
 	public function fire()
 	{
         //First round
-		$this->generator->firstRound();
+		$this->generator->firstRound($this->option('migrations'));
 
         //Ask for relations
         $this->askRelations();
@@ -56,7 +56,7 @@ class GenerateModels extends Command
         $this->askPivots();
 
         //Second round
-        $this->generator->secondRound();
+        $this->generator->secondRound($this->option('models'), $this->option('namespace'));
 
 		$this->info("Models generated successfully.");
 	}
@@ -157,7 +157,9 @@ class GenerateModels extends Command
 	protected function getOptions()
 	{
 		return [
-			//['example', null, InputOption::VALUE_OPTIONAL, 'An example option.', null],
+			['migrations', null, InputOption::VALUE_OPTIONAL, 'Path where migrations are located.', database_path('migrations')],
+			['models', null, InputOption::VALUE_OPTIONAL, 'Path where models will be placed.', app_path()],
+			['namespace', null, InputOption::VALUE_OPTIONAL, 'Optional namespace.', null],
 		];
 	}
 

@@ -59,27 +59,28 @@ class ModelGenerator
 
     /**
      * First round
+     * @param $path
      * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
      */
-    public function firstRound()
+    public function firstRound($path)
     {
-        foreach ($this->file->files(base_path('database/migrations')) as $file) {
+        foreach ($this->file->files($path) as $file) {
             $this->handle($this->file->get($file));
         }
-        //$this->handle($this->file->get(base_path('database/migrations/2015_03_24_163041_create_resources_table.php')));
-        //$this->handle($this->file->get(base_path('database/migrations/2015_03_24_170539_create_store_tables.php')));
-        //$this->handle($this->file->get(base_path('database/migrations/2015_06_13_095532_test_products.php')));
     }
 
     /**
      * Second round (pivots)
+     * @param $path
      */
-    public function secondRound()
+    public function secondRound($path, $namespace)
     {
         //Create regulars
         foreach ($this->regulars as $table => $options) {
             $this->create(
                 $table,
+                $path,
+                $namespace,
                 $options['fillable'],
                 $options['rules'],
                 $this->searchRelations($table)
@@ -138,20 +139,24 @@ class ModelGenerator
     /**
      * Create model file
      * @param $table
+     * @param $path
+     * @param $namespace
      * @param string $fillable
      * @param string $rules
      * @param string $relations
      * @param bool $force
      * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
      */
-    private function create($table, $fillable = "", $rules = "", $relations = "", $force = false)
+    private function create($table, $path, $namespace, $fillable = "", $rules = "", $relations = "", $force = false)
     {
         $paths = [
             'templates' => __DIR__.'/../../../templates',
-            'models' => app_path(),
+            'models' => $path,
         ];
 
-        $namespace = preg_replace("|\\\\$|", "", $this->getAppNamespace());
+        if ($namespace == "") {
+            $namespace = preg_replace("|\\\\$|", "", $this->getAppNamespace());
+        }
         $classname = ucfirst(camel_case(str_singular($table)));
 
         //Model template
