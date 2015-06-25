@@ -3,7 +3,7 @@
 /**
  * @package ModelGenerator
  * @author Alejandro González thytanium@gmail.com
- * @license MIT
+ * @license MIT http://opensource.org/licenses/MIT
  * @link http://www.github.com/thytanium/model-generator
  */
 class ModelGeneratorTest extends TestCase
