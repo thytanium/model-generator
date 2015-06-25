@@ -61,6 +61,7 @@ class ModelGeneratorTest extends TestCase
         $data = [];
 
         //Migration 001 / Variation 1
+        //Normal migration
         $expectedModels = ['User', 'UserGroup'];
         $pivots = [[['user', 'user_group']]];
         $oneToOne = [];
@@ -68,8 +69,14 @@ class ModelGeneratorTest extends TestCase
         $data[] = ['migration001/', $expectedModels, $oneToOne, $oneToMany, $pivots, 1];
 
         //Migration 001 / Variation 2
+        //Migration without pivots
         $pivots = [];
         $data[] = ['migration001/', $expectedModels, $oneToOne, $oneToMany, $pivots, 2];
+
+        //Migration 002 / Variation 1
+        //Removing comments from every Schema::create statement
+        $pivots = [[['user', 'user_group']]];
+        $data[] = ['migration002/', $expectedModels, $oneToOne, $oneToMany, $pivots, 1];
 
         return $data;
     }
