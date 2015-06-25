@@ -100,7 +100,7 @@ class ModelGenerator
     private function handle($input)
     {
         $matches = [];
-        preg_match_all("#(schema\\:\\:create\\s?\\(\\'([a-z0-9_]+)\\'\\s*\\,\\s*function\\s*\\((\\s*blueprint\\s*)?\\$([a-z_]+)\\s*\\)(\\s|\\n|\\t)*\\{[^\\}]+\\}\\)\\;(\\s|\\n|\\t)*)+#i", $input, $matches);
+        preg_match_all("#(schema\\:\\:create\\s?\\([\\'\\\"]([a-z0-9_]+)[\\'\\\"]\\s*\\,\\s*function\\s*\\((\\s*blueprint\\s*)?\\$([a-z_]+)\\s*\\)(\\s|\\n|\\t)*\\{[^\\}]+\\}\\)\\;)+#i", $input, $matches);
 
         if (count($matches) && array_key_exists(2, $matches)) {
             //Tables in this migration
