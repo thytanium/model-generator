@@ -68,10 +68,7 @@ class ModelGeneratorTest extends TestCase
         $data[] = ['migration001/', $expectedModels, $oneToOne, $oneToMany, $pivots, 1];
 
         //Migration 001 / Variation 2
-        $expectedModels = ['User', 'UserGroup'];
         $pivots = [];
-        $oneToOne = [];
-        $oneToMany = [];
         $data[] = ['migration001/', $expectedModels, $oneToOne, $oneToMany, $pivots, 2];
 
         return $data;
