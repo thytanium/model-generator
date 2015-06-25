@@ -22,11 +22,40 @@ class TestCase extends PHPUnit_Framework_TestCase
     protected $generator;
 
     /**
-     * Class constructor
+     * @var array
      */
-    public function __construct()
+    protected $paths;
+
+    /**
+     * Set up test case
+     * @return void
+     */
+    protected function setUp()
     {
         $this->file = new Filesystem;
         $this->generator = new ModelGenerator($this->file);
+
+        $this->paths = [
+            'migrations' => __DIR__.'/migrations/',
+            'models' => __DIR__.'/models/',
+        ];
+    }
+
+    /**
+     * Returns path where test migrations are located
+     * @return mixed
+     */
+    protected function getMigrationsPath()
+    {
+        return $this->paths['migrations'];
+    }
+
+    /**
+     * Returns path where test models are located
+     * @return mixed
+     */
+    protected function getModelsPath()
+    {
+        return $this->paths['models'];
     }
 }
