@@ -74,8 +74,10 @@ class ModelGenerator
     /**
      * Second round (pivots)
      * @param $path
+     * @param $namespace
+     * @param bool $force
      */
-    public function secondRound($path, $namespace)
+    public function secondRound($path, $namespace, $force = false)
     {
         //Create regulars
         foreach ($this->regulars as $table => $options) {
@@ -85,7 +87,8 @@ class ModelGenerator
                 $namespace,
                 $options['fillable'],
                 $options['rules'],
-                $this->searchRelations($table)
+                $this->searchRelations($table),
+                $force
             );
         }
     }

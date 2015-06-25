@@ -62,7 +62,7 @@ class GenerateModels extends Command
         $this->askPivots();
 
         //Second round
-        $this->generator->secondRound($this->option('models'), $this->option('namespace'));
+        $this->generator->secondRound($this->option('models'), $this->option('namespace'), $this->option('force'));
 
 		$this->info("Models generated successfully.");
 	}
@@ -163,9 +163,10 @@ class GenerateModels extends Command
 	protected function getOptions()
 	{
 		return [
-			['migrations', null, InputOption::VALUE_OPTIONAL, 'Path where migrations are located.', database_path('migrations')],
-			['models', null, InputOption::VALUE_OPTIONAL, 'Path where models will be placed.', app_path()],
-			['namespace', null, InputOption::VALUE_OPTIONAL, 'Optional namespace.', null],
+			['migrations', null, InputOption::VALUE_REQUIRED, 'Path where migrations are located.', database_path('migrations')],
+			['models', null, InputOption::VALUE_REQUIRED, 'Path where models will be placed.', app_path()],
+			['namespace', null, InputOption::VALUE_REQUIRED, 'Optional namespace.', null],
+            ['force', null, InputOption::VALUE_OPTIONAL, 'Overwrite any existing files.', false],
 		];
 	}
 
