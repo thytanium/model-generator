@@ -7,8 +7,10 @@ use Illuminate\Console\AppNamespaceDetectorTrait as AppNamespace;
 use Illuminate\Support\Collection;
 
 /**
- * Class ModelGenerator
- * @package Thytanium\ModelGenerator
+ * @package ModelGenerator
+ * @author Alejandro González thytanium@gmail.com
+ * @license MIT
+ * @link http://www.github.com/thytanium/model-generator
  */
 class ModelGenerator
 {

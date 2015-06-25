@@ -7,6 +7,12 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
 use Thytanium\ModelGenerator\ModelGenerator;
 
+/**
+ * @package ModelGenerator
+ * @author Alejandro González thytanium@gmail.com
+ * @license MIT
+ * @link http://www.github.com/thytanium/model-generator
+ */
 class GenerateModels extends Command
 {
     /**
