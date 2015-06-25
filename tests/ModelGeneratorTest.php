@@ -39,7 +39,7 @@ class ModelGeneratorTest extends TestCase
         $this->generator->oneToMany = $oneToMany;
 
         //Second round, process relations, create models
-        $this->generator->secondRound($this->getModelsPath(), "App");
+        $this->generator->secondRound($this->getModelsPath(), "App", true);
 
         //Check that files were created
         foreach ($expectedModels as $model) {
@@ -65,8 +65,14 @@ class ModelGeneratorTest extends TestCase
         $pivots = [[['user', 'user_group']]];
         $oneToOne = [];
         $oneToMany = [];
-
         $data[] = ['migration001/', $expectedModels, $oneToOne, $oneToMany, $pivots, 1];
+
+        //Migration 001 / Variation 2
+        $expectedModels = ['User', 'UserGroup'];
+        $pivots = [];
+        $oneToOne = [];
+        $oneToMany = [];
+        $data[] = ['migration001/', $expectedModels, $oneToOne, $oneToMany, $pivots, 2];
 
         return $data;
     }
