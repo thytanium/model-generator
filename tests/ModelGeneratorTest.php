@@ -115,10 +115,10 @@ class ModelGeneratorTest extends TestCase
         $oneToOne = $oneToMany = $pivots = [];
         $data[] = ['migration001/', $expectedModels, $oneToOne, $oneToMany, $pivots, 8];
 
-        /*
-         * Second set of tests
-         * ===================
-         */
+        //
+        // Second set of tests
+        // ===================
+        //
 
         //Migration 002 / Variation 1
         //Removing comments from every Schema::create statement
@@ -130,6 +130,12 @@ class ModelGeneratorTest extends TestCase
         //Migration 003 / Variation 1
         //Using double quotes instead of single quotes
         $data[] = ['migration003/', $expectedModels, $oneToOne, $oneToMany, $pivots, 1];
+
+        //Migration 004 / Variation 1
+        //Testing every field data types and validation rules
+        $expectedModels = ['User'];
+        $pivots = $oneToMany = $oneToOne = [];
+        $data[] = ['migration004/', $expectedModels, $oneToOne, $oneToMany, $pivots, 1];
 
         return $data;
     }
