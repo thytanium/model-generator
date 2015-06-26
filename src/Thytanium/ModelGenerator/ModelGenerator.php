@@ -233,7 +233,7 @@ class ModelGenerator
     private function fields($input)
     {
         $matches = $fields = [];
-        preg_match_all("#\\$\\w+\\-\\>(string|(tiny|small|medium|big|long)?(text|integer)|enum|binary|boolean|char|date|datetime|decimal|double|float|time)\\s*\\(\\s*\\'\\s*(\\w+)\\'\\s*\\,?\\s*(\\[?[\\w\\,\\s]*\\]?)\\s*\\)(\\s|\\n|\\t)*(\\-\\>(unsigned|unique|nullable|default)\\(\\)(\\;|\\n|\\t|\\s)*)?(\\-\\>(unsigned|unique|nullable|default)\\(\\)(\\;|\\n|\\t|\\s)*)?#i", $input, $matches);
+        preg_match_all("#\\$\\w+\\-\\>(string|(tiny|small|medium|big|long)?(text|integer)|enum|binary|boolean|char|date|datetime|decimal|double|float|time)\\s*\\(\\s*[\\'\\\"]\\s*(\\w+)[\\'\\\"]\\s*\\,?\\s*(\\[?[\\w\\,\\s]*\\]?)\\s*\\)(\\s|\\n|\\t)*(\\-\\>(unsigned|unique|nullable|default)\\(\\)(\\;|\\n|\\t|\\s)*)?(\\-\\>(unsigned|unique|nullable|default)\\(\\)[\\;\\n\\t\\s]*)?#i", $input, $matches);
 
         if (count($matches) && array_key_exists(4, $matches)) {
             for ($i = 0; $i < count($matches[1]); $i++) {
