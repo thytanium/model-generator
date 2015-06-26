@@ -233,14 +233,14 @@ class ModelGenerator
     private function fields($input)
     {
         $matches = $fields = [];
-        preg_match_all("#\\$\\w+\\-\\>(string|(tiny|small|medium|big|long)?(text|integer)|enum|binary|boolean|char|date|datetime|decimal|double|float|time)\\s*\\(\\s*[\\'\\\"]\\s*(\\w+)[\\'\\\"]\\s*\\,?\\s*(\\[?[\\w\\,\\s]*\\]?)\\s*\\)(\\s|\\n|\\t)*(\\-\\>(unsigned|unique|nullable|default)\\(\\)(\\;|\\n|\\t|\\s)*)?(\\-\\>(unsigned|unique|nullable|default)\\(\\)[\\;\\n\\t\\s]*)?#i", $input, $matches);
+        preg_match_all("#\\$\\w+\\-\\>(string|(tiny|small|medium|big|long)?(text|integer)|enum|binary|boolean|char|date|datetime|decimal|double|float|time)\\s*\\(\\s*[\\'\\\"]\\s*(\\w+)[\\'\\\"]\\s*\\,?\\s*(\\[?[\\'\\\"\\w\\,\\s]*\\]?)\\s*\\)(\\s|\\n|\\t)*(\\-\\>(unsigned|unique|nullable|default)\\(\\)(\\;|\\n|\\t|\\s)*)?(\\-\\>(unsigned|unique|nullable|default)\\(\\)[\\;\\n\\t\\s]*)?#i", $input, $matches);
 
         if (count($matches) && array_key_exists(4, $matches)) {
             for ($i = 0; $i < count($matches[1]); $i++) {
                 $fields[] = [
                     'type' => $matches[1][$i],
                     'field' => $matches[4][$i],
-                    'size' => $matches[5][$i],
+                    'size' => self::clean($matches[5][$i]),
                     'options' => [
                         array_key_exists(8, $matches) ? $matches[8][$i] : "",
                         array_key_exists(11, $matches) ? $matches[11][$i] : "",
@@ -493,5 +493,14 @@ class ModelGenerator
         return $temp->filter(function ($t) use ($field, $input) {
             return $t[$field] == $input;
         });
+    }
+
+    /**
+     * Cleans field string
+     * @param $input
+     * @return mixed
+     */
+    private static function clean($input) {
+        return str_replace(['"',"'"," ","[","]"], ["","","",""], $input);
     }
 }
