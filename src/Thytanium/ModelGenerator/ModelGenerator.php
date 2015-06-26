@@ -67,7 +67,10 @@ class ModelGenerator
     public function firstRound($path)
     {
         foreach ($this->file->files($path) as $file) {
-            $this->handle($this->file->get($file));
+            //Extension .php
+            if (preg_match("|\\.php$|", $file)) {
+                $this->handle($this->file->get($file));
+            }
         }
     }
 
