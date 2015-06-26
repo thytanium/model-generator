@@ -62,10 +62,14 @@ class ModelGeneratorTest extends TestCase
 
         //Migration 001 / Variation 1
         //Normal migration
-        $expectedModels = ['User', 'UserGroup'];
+        $expectedModels = ['Language', 'User', 'UserGroup', 'Student'];
         $pivots = [[['user', 'user_group']]];
-        $oneToOne = [];
-        $oneToMany = [];
+        $oneToOne = [
+            ['table' => 'students', 'local_id' => 'user_id', 'foreign_id' => 'id', 'foreign_table' => 'users'],
+        ];
+        $oneToMany = [
+            ['table' => 'users', 'local_id' => 'language_id', 'foreign_id' => 'id', 'foreign_table' => 'languages'],
+        ];
         $data[] = ['migration001/', $expectedModels, $oneToOne, $oneToMany, $pivots, 1];
 
         //Migration 001 / Variation 2
@@ -74,13 +78,53 @@ class ModelGeneratorTest extends TestCase
         $data[] = ['migration001/', $expectedModels, $oneToOne, $oneToMany, $pivots, 2];
 
         //Migration 001 / Variation 3
-        //Migration without pivots
-        /*$pivots = [];
-        $data[] = ['migration001/', $expectedModels, $oneToOne, $oneToMany, $pivots, 3];*/
+        //Migration without one to many
+        $pivots = [[['user', 'user_group']]];
+        $oneToMany = [];
+        $data[] = ['migration001/', $expectedModels, $oneToOne, $oneToMany, $pivots, 3];
+
+        //Migration 001 / Variation 4
+        //Migration with only one to one
+        $pivots = [];
+        $oneToMany = [];
+        $data[] = ['migration001/', $expectedModels, $oneToOne, $oneToMany, $pivots, 4];
+
+        //Migration 001 / Variation 5
+        //Migration without one to one
+        $pivots = [[['user', 'user_group']]];
+        $oneToMany = [
+            ['table' => 'users', 'local_id' => 'language_id', 'foreign_id' => 'id', 'foreign_table' => 'languages'],
+        ];
+        $oneToOne = [];
+        $data[] = ['migration001/', $expectedModels, $oneToOne, $oneToMany, $pivots, 5];
+
+        //Migration 001 / Variation 6
+        //Migration with only one to many
+        $pivots = [];
+        $oneToOne = [];
+        $data[] = ['migration001/', $expectedModels, $oneToOne, $oneToMany, $pivots, 6];
+
+        //Migration 001 / Variation 7
+        //Migration with only pivots
+        $pivots = [[['user', 'user_group']]];
+        $oneToOne = $oneToMany = [];
+        $data[] = ['migration001/', $expectedModels, $oneToOne, $oneToMany, $pivots, 7];
+
+        //Migration 001 / Variation 8
+        //Migration with no relations
+        $oneToOne = $oneToMany = $pivots = [];
+        $data[] = ['migration001/', $expectedModels, $oneToOne, $oneToMany, $pivots, 8];
+
+        /*
+         * Second set of tests
+         * ===================
+         */
 
         //Migration 002 / Variation 1
         //Removing comments from every Schema::create statement
+        $expectedModels = ['User', 'UserGroup'];
         $pivots = [[['user', 'user_group']]];
+        $oneToOne = $oneToMany = [];
         $data[] = ['migration002/', $expectedModels, $oneToOne, $oneToMany, $pivots, 1];
 
         //Migration 003 / Variation 1

@@ -1,0 +1,37 @@
+<?php
+
+namespace App;
+
+use Illuminate\Database\Eloquent\Model;
+
+/**
+ * Student model
+ * Generated with thytanium/model-generator
+ * @link https://github.com/thytanium/model-generator
+ */
+class Student extends Model
+{
+    /**
+     * Fillable fields
+     * @var array
+     */
+    protected $fillable = [
+		"student_name",
+		"major",
+		"birth",
+		"user_id"
+	];
+
+    /**
+     * Validation rules
+     * @var array
+     */
+    public static $rules = [
+		"student_name" => "required|max:128",
+		"major" => "required|max:64",
+		"birth" => "required|date",
+		"user_id" => "required|integer"
+	];
+
+
+}

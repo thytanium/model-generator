@@ -1,0 +1,31 @@
+<?php
+
+namespace App;
+
+use Illuminate\Database\Eloquent\Model;
+
+/**
+ * UserGroup model
+ * Generated with thytanium/model-generator
+ * @link https://github.com/thytanium/model-generator
+ */
+class UserGroup extends Model
+{
+    /**
+     * Fillable fields
+     * @var array
+     */
+    protected $fillable = [
+		"group"
+	];
+
+    /**
+     * Validation rules
+     * @var array
+     */
+    public static $rules = [
+		"group" => "required|max:64"
+	];
+
+
+}

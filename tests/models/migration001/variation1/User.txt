@@ -18,7 +18,8 @@ class User extends Model
     protected $fillable = [
 		"name",
 		"email",
-		"password"
+		"password",
+		"language_id"
 	];
 
     /**
@@ -28,8 +29,27 @@ class User extends Model
     public static $rules = [
 		"name" => "required",
 		"email" => "required|email|unique:users",
-		"password" => "required|max:60"
+		"password" => "required|max:60",
+		"language_id" => "integer"
 	];
+
+    /**
+     * Relation with Language
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function language()
+    {
+        return $this->belongsTo('Language');
+    }
+
+    /**
+     * Relation with Student
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function student()
+    {
+        return $this->hasOne('Student');
+    }
 
     /**
      * Relation with UserGroup

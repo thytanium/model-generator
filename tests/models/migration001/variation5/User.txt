@@ -43,11 +43,11 @@ class User extends Model
     }
 
     /**
-     * Relation with Student
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     * Relation with UserGroup
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
-    public function student()
+    public function user_groups()
     {
-        return $this->hasOne('Student');
+        return $this->belongsToMany('UserGroup');
     }
 }

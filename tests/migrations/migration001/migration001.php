@@ -12,14 +12,31 @@ class Migration001 extends Migration {
 	 */
 	public function up()
 	{
+        Schema::create('languages', function (Blueprint $t) {
+            $t->tinyInteger('id')->unsigned();
+            $t->string('language', 32);
+            $t->string('short', 5);
+
+            $t->primary('id');
+
+            $t->engine = "InnoDB";
+        });
+
 		Schema::create('users', function(Blueprint $table)
 		{
 			$table->increments('id');
 			$table->string('name');
 			$table->string('email')->unique();
 			$table->string('password', 60);
+            $table->integer('language_id')
+                ->unsigned()
+                ->nullable();
 			$table->rememberToken();
 			$table->timestamps();
+
+            $table->foreign('language_id')
+                ->references('id')
+                ->on('languages');
 
 			$table->engine = "InnoDB";
 		});
@@ -56,6 +73,21 @@ class Migration001 extends Migration {
                 ->onDelete('cascade');
 
             $t->engine = "InnoDB";
+        });
+
+        /**
+         * Students table
+         */
+        Schema::create('students', function (Blueprint $t) {
+            $t->increments('id');
+            $t->string('student_name', 128);
+            $t->string('major', 64);
+            $t->date('birth');
+            $t->integer('user_id')->unsigned();
+
+            $t->foreign('user_id')
+                ->references('id')
+                ->on('users');
         });
 	}
 

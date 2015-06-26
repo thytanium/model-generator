@@ -33,21 +33,5 @@ class User extends Model
 		"language_id" => "integer"
 	];
 
-    /**
-     * Relation with Language
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function language()
-    {
-        return $this->belongsTo('Language');
-    }
 
-    /**
-     * Relation with Student
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne
-     */
-    public function student()
-    {
-        return $this->hasOne('Student');
-    }
 }

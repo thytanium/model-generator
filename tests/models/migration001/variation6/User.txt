@@ -41,13 +41,4 @@ class User extends Model
     {
         return $this->belongsTo('Language');
     }
-
-    /**
-     * Relation with Student
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne
-     */
-    public function student()
-    {
-        return $this->hasOne('Student');
-    }
 }

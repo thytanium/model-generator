@@ -34,20 +34,11 @@ class User extends Model
 	];
 
     /**
-     * Relation with Language
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * Relation with UserGroup
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
-    public function language()
+    public function user_groups()
     {
-        return $this->belongsTo('Language');
-    }
-
-    /**
-     * Relation with Student
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne
-     */
-    public function student()
-    {
-        return $this->hasOne('Student');
+        return $this->belongsToMany('UserGroup');
     }
 }
