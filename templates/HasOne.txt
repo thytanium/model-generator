@@ -4,5 +4,5 @@
      */
     public function <!--function-->()
     {
-        return $this->hasOne('<!--model-->'<!--options-->);
+        return $this->hasOne('<!--namespace-->\<!--model-->'<!--options-->);
     }

@@ -39,6 +39,6 @@ class User extends Model
      */
     public function student()
     {
-        return $this->hasOne('Student');
+        return $this->hasOne('App\Student');
     }
 }

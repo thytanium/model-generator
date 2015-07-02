@@ -39,6 +39,6 @@ class User extends Model
      */
     public function user_groups()
     {
-        return $this->belongsToMany('UserGroup');
+        return $this->belongsToMany('App\UserGroup');
     }
 }

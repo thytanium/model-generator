@@ -90,7 +90,7 @@ class ModelGenerator
                 $namespace,
                 $options['fillable'],
                 $options['rules'],
-                $this->searchRelations($table),
+                $this->searchRelations($table, $namespace),
                 $force
             );
         }
@@ -357,15 +357,16 @@ class ModelGenerator
     /**
      * Process relations
      * @param $table
+     * @param $namespace
      * @return array
      */
-    private function searchRelations($table)
+    private function searchRelations($table, $namespace)
     {
-        $belongsOTO = $this->belongs(self::filter('table', $table, $this->oneToOne));
-        $belongsOTM = $this->belongs(self::filter('table', $table, $this->oneToMany));
-        $hasOTO = $this->has(self::filter('foreign_table', $table, $this->oneToOne), 1);
-        $hasOTM = $this->has(self::filter('foreign_table', $table, $this->oneToMany), 2);
-        $belongsTM = $this->pivots($table);
+        $belongsOTO = $this->belongs(self::filter('table', $table, $this->oneToOne), $namespace);
+        $belongsOTM = $this->belongs(self::filter('table', $table, $this->oneToMany), $namespace);
+        $hasOTO = $this->has(self::filter('foreign_table', $table, $this->oneToOne), 1, $namespace);
+        $hasOTM = $this->has(self::filter('foreign_table', $table, $this->oneToMany), 2, $namespace);
+        $belongsTM = $this->pivots($table, $namespace);
 
         return implode("\n\n", array_merge(
             $belongsOTO,
@@ -379,16 +380,17 @@ class ModelGenerator
     /**
      * Process "belongs" relations
      * @param $relations
+     * @param $namespace
      * @return array
      */
-    private function belongs($relations)
+    private function belongs($relations, $namespace)
     {
         //Path to templates
         $path = __DIR__.'/../../../templates/';
         $output = [];
 
         //BelongsTo
-        $relations->each(function ($r) use (&$output, $path) {
+        $relations->each(function ($r) use (&$output, $path, $namespace) {
             //Convert table name to model name
             $table = $r['foreign_table'];
             $singularTable = str_singular($table);
@@ -405,6 +407,7 @@ class ModelGenerator
             $str = str_replace("<!--function-->", str_singular($table), $str);
             $str = str_replace("<!--model-->", $model, $str);
             $str = str_replace("<!--options-->", $options, $str);
+            $str = str_replace("<!--namespace-->", $namespace, $str);
 
             $output[] = $str;
         });
@@ -418,16 +421,17 @@ class ModelGenerator
      * Mode 2 = One to Many
      * @param $relations
      * @param $mode
+     * @param $namespace
      * @return array
      */
-    private function has($relations, $mode)
+    private function has($relations, $mode, $namespace)
     {
         //Path to templates
         $path = __DIR__.'/../../../templates/';
         $output = [];
 
         //Has
-        $relations->each(function ($r) use (&$output, $path, $mode) {
+        $relations->each(function ($r) use (&$output, $path, $mode, $namespace) {
             //Convert table name to model name
             $table = $r['table'];
             $model = ucfirst(camel_case(str_singular($table)));
@@ -444,6 +448,7 @@ class ModelGenerator
             $str = str_replace("<!--function-->", $mode == 1 ? str_singular($table) : $table, $str);
             $str = str_replace("<!--model-->", $model, $str);
             $str = str_replace("<!--options-->", $options, $str);
+            $str = str_replace("<!--namespace-->", $namespace, $str);
 
             $output[] = $str;
         });
@@ -454,9 +459,10 @@ class ModelGenerator
     /**
      * Process many to many relations
      * @param $table
+     * @param $namespace
      * @return array
      */
-    private function pivots($table)
+    private function pivots($table, $namespace)
     {
         //Path to templates
         $path = __DIR__.'/../../../templates/';
@@ -475,6 +481,7 @@ class ModelGenerator
                 $str = str_replace("<!--function-->", $function, $str);
                 $str = str_replace("<!--model-->", $model, $str);
                 $str = str_replace("<!--options-->", '', $str);
+                $str = str_replace("<!--namespace-->", $namespace, $str);
 
                 $output[] = $str;
             }
@@ -485,6 +492,7 @@ class ModelGenerator
 
     /**
      * Filter specific table from relations array
+     * @param $field
      * @param $input
      * @param $haystack
      * @return static

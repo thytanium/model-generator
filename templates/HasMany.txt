@@ -4,5 +4,5 @@
      */
     public function <!--function-->()
     {
-        return $this->hasMany('<!--model-->'<!--options-->);
+        return $this->hasMany('<!--namespace-->\<!--model-->'<!--options-->);
     }

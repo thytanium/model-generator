@@ -4,5 +4,5 @@
      */
     public function <!--function-->()
     {
-        return $this->belongsTo('<!--model-->'<!--options-->);
+        return $this->belongsTo('<!--namespace-->\<!--model-->'<!--options-->);
     }
