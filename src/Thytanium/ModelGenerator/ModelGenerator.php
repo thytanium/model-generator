@@ -2,8 +2,8 @@
 
 namespace Thytanium\ModelGenerator;
 
+use Illuminate\Console\AppNamespaceDetectorTrait;
 use Illuminate\Filesystem\Filesystem as File;
-use Illuminate\Console\AppNamespaceDetectorTrait as AppNamespace;
 use Illuminate\Support\Collection;
 
 /**
@@ -14,7 +14,7 @@ use Illuminate\Support\Collection;
  */
 class ModelGenerator
 {
-    use AppNamespace;
+    use AppNamespaceDetectorTrait;
 
     /**
      * @var File
@@ -82,6 +82,11 @@ class ModelGenerator
      */
     public function secondRound($path, $namespace, $force = false)
     {
+        //Namespace
+        if (empty($namespace)) {
+            $namespace = preg_replace("|\\\\$|", "", $this->getAppNamespace());
+        }
+
         //Create regulars
         foreach ($this->regulars as $table => $options) {
             $this->create(
@@ -162,9 +167,6 @@ class ModelGenerator
             'models' => $path,
         ];
 
-        if ($namespace == "") {
-            $namespace = preg_replace("|\\\\$|", "", $this->getAppNamespace());
-        }
         $classname = ucfirst(camel_case(str_singular($table)));
 
         //Model template

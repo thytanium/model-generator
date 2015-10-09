@@ -62,7 +62,11 @@ class GenerateModels extends Command
         $this->askPivots();
 
         //Second round
-        $this->generator->secondRound($this->option('models'), $this->option('namespace'), $this->option('force'));
+        $this->generator->secondRound(
+            $this->option('models'),
+            $this->option('namespace'),
+            $this->option('force')
+        );
 
 		$this->info("Models generated successfully.");
 	}
