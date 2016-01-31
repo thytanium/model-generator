@@ -244,11 +244,11 @@ class ModelGenerator
             for ($i = 0; $i < count($matches[1]); $i++) {
                 $fields[] = [
                     'type' => $matches[1][$i],
-                    'field' => $matches[4][$i],
-                    'size' => self::clean($matches[5][$i]),
+                    'field' => $matches[5][$i],
+                    'size' => self::clean($matches[6][$i]),
                     'options' => [
-                        array_key_exists(8, $matches) ? $matches[8][$i] : "",
-                        array_key_exists(11, $matches) ? $matches[11][$i] : "",
+                        array_key_exists(9, $matches) ? $matches[9][$i] : "",
+                        array_key_exists(12, $matches) ? $matches[12][$i] : "",
                     ],
                 ];
             }
